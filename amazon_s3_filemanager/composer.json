@@ -1,5 +1,6 @@
 {
 	"require": {
-		"aws/aws-sdk-php": "^3.130"
+		"aws/aws-sdk-php": "^3.130",
+		"league/flysystem-aws-s3-v3": "^1.0"
 	}
 }
