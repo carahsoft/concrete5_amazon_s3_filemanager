@@ -80,7 +80,6 @@ class S3Configuration extends coreConfiguration implements coreConfigurationInte
 	public function getRegion(){
 		return $this->region;
 	}
-
 	
 	public function loadFromRequest(coreRequest $req){
 		$data = $req->get('fslType');
@@ -106,15 +105,15 @@ class S3Configuration extends coreConfiguration implements coreConfigurationInte
 		$this->publicPath = trim($data['publicPath'], "/");
 
 		if(!$this->bucketname) {
-			$e->add(t("You must add a Amazon-S3 Bucketname."));
+			$e->add(t("You must specify a S3 bucket name."));
 		}else if(!$this->accesskey){
-			$e->add(t("You must add a Amazon-S3 Accesskey."));
+			$e->add(t("You must specify a S3 access key."));
 		}else if(!$this->secretkey){
-			$e->add(t("You must add a Amazon-S3 Secretkey."));
+			$e->add(t("You must specify a S3 secret key."));
 		}else if(!$this->testS3Connection()){
-			$e->add(t("Fehler beim Aufbau der Verbindung. Bitte Überprüfe deine Angaben."));
+			$e->add(t("Connection failed. Please check your details."));
 		}else if($this->enablePublicPath && !$this->publicPath){
-			$e->add(t("Du musst einen pfad angeben der angezeigt werden soll"));
+			$e->add(t("You must specify a path to be displayed."));
 		}
 
 		if($this->enablePublicPath && $this->publicPath){
@@ -133,7 +132,7 @@ class S3Configuration extends coreConfiguration implements coreConfigurationInte
 				'secret' => $this->secretkey
 			));
 
-			$bucketExist = $s3Client->doesBucketExist('lokalleads');
+			$bucketExist = $s3Client->doesBucketExist($this->bucketname);
 
 			return $bucketExist;
 		}catch(Exception $e){
@@ -222,6 +221,6 @@ class S3Configuration extends coreConfiguration implements coreConfigurationInte
 
 	
 	private function createExternalUrl(){
-		return 'https://'.$this->bucketname.'.s3'.($this->region ? $this->region : '').'.amazonaws.com'.($this->subfolder ? $this->subfolder : '').'/';
+		return 'http://'.$this->bucketname.'.s3-website'.($this->region ? '-'.$this->region : '').'.amazonaws.com'.($this->subfolder ? $this->subfolder : '').'/';
 	}
 }

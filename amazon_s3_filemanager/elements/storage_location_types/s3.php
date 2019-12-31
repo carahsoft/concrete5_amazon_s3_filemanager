@@ -40,15 +40,15 @@ if (is_object($configuration)) {
 	</div>
 </fieldset>
 <fieldset>
-	<legend><?php echo t('Optionale Angaben') ?></legend>
+	<legend><?php echo t('Optional Information') ?></legend>
 	<div class="form-group">
-		<label for="subfolder"><?php echo t('Subfolder in Ihrem Bucket - Ordner wird erstellt wenn er nicht existiert!')?></label>
+		<label for="subfolder"><?php echo t('Subfolder in your bucket - folder is created if it does not exist!')?></label>
 		<?php echo $form->text('fslType[subfolder]', $subfolder, array('placeholder' => t('Subfolder in Ihrem Bucket')))?>
 	</div>
 
 
 	<div class="form-group">
-		<label for="region"><?php echo t('Amazon S3 Region auswählen')?></label>
+		<label for="region"><?php echo t('Choose an Amazon S3 Region')?></label>
 		<?php echo $form->select('fslType[region]', $regions, $region); ?>
 	</div>
 
@@ -56,14 +56,14 @@ if (is_object($configuration)) {
 	<div class="form-group">
 		<label>
 			<input id="enablePublicPath" type="checkbox" name="fslType[enablePublicPath]" value="true" <?php echo $enablePublicPath ? 'checked' : ''?>>
-			<?php echo t('Rewrite aktivieren'); ?>
+			<?php echo t('Enable Rewrite'); ?>
 		</label>
 	</div> 
 	
 	<div class="form-group" id="publicPath" style="display:none">
-		<label for="publicPath"><?php echo t('Pfad der auf Ihrer Webseite angezeigt werden soll')?></label>
+		<label for="publicPath"><?php echo t('Path to be displayed on your website')?></label>
 		<div class="input-group">
-			<?php echo $form->text('fslType[publicPath]', $publicPath, array('placeholder' => t('Pfad der auf Ihrer webseite dargestellt werden soll z.b. /files/s3/')))?>
+			<?php echo $form->text('fslType[publicPath]', $publicPath, array('placeholder' => t('Path to be displayed on your site as e.g. /files/s3/')))?>
 			<span class="input-group-addon"><i class="fa fa-asterisk"></i></span>
 		</div>
 	</div>

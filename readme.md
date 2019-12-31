@@ -1,18 +1,11 @@
-Concrete5-Amazon-S3-FileManager-Package
-========================
-Upload/Edit/Delete Files on Amazons S3
-Use your S3-Bucket as Concrete5 File Source.
+Concrete5 S3 File Manager Package
+===
+Add S3 or compatible (Amazon, Ceph) storage support to the built-in Concrete 5 File Manager.
 
-Require:
-- Concrete5 5.7
+## Require
+- Concrete5 8+
 
-
-Usage:
+## Usage
 - Install package
-- create new File Storage Location on /dashboard/system/files/storage
-- insert your S3 credentials
-- ready
-
-Optional:
-- show local path for you s3 stored files
-- select bucket location 
+- Create new File Storage Location at /dashboard/system/files/storage
+- Configure S3 settings and credentials
