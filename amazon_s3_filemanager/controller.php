@@ -2,7 +2,7 @@
 namespace Concrete\Package\AmazonS3Filemanager;
 
 use Package,
-	\Concrete\Core\File\StorageLocation\Type\Type as StorageLocationType;
+	Concrete\Core\File\StorageLocation\Type\Type as StorageLocationType;
 
 defined('C5_EXECUTE') or die(_("Access Denied."));
 
@@ -10,32 +10,40 @@ class Controller extends Package {
 
 	protected $pkgHandle = 'amazon_s3_filemanager';
 	protected $appVersionRequired = '5.7.0';
-	protected $pkgVersion = '0.1';
-	protected $regions = array(
-					"" 					=> "Default",
-					"s3-external-1"		=> "US Standard (N. Virginia)",
-					"us-west-2" 		=> "US West (Oregon)",	
-					"us-west-1" 		=> "US West (N. California)",
-					"eu-west-1" 		=> "EU (Ireland)",
-					"eu-central-1" 		=> "EU (Frankfurt)",
-					"ap-southeast-1" 	=> "Asia Pacific (Singapore)",
-					"ap-southeast-2" 	=> "Asia Pacific (Sydney)",
-					"ap-northeast-1" 	=> "Asia Pacific (Tokyo)",
-					"sa-east-1" 		=> "South America (Sao Paulo)"
+	protected $pkgVersion = '1.0.0';
+	static protected $regions = array(
+					"" 					=> "",
+					"us-east-2"			=> "US East (Ohio)",
+					"us-east-1"			=> "US East (N. Virginia)",
+					"us-west-1"			=> "US West (N. California)",
+					"us-west-2"			=> "US West (Oregon)",
+					"ap-east-1"			=> "Asia Pacific (Hong Kong)",
+					"ap-south-1"		=> "Asia Pacific (Mumbai)",
+					"ap-northeast-3"	=> "Asia Pacific (Osaka-Local)",
+					"ap-northeast-2"	=> "Asia Pacific (Seoul)",
+					"ap-southeast-1"	=> "Asia Pacific (Singapore)",
+					"ap-southeast-2"	=> "Asia Pacific (Sydney)",
+					"ap-northeast-1"	=> "Asia Pacific (Tokyo)",
+					"ca-central-1"		=> "Canada (Central)",
+					"eu-central-1"		=> "Europe (Frankfurt)",
+					"eu-west-1"			=> "Europe (Ireland)",
+					"eu-west-2"			=> "Europe (London)",
+					"eu-west-3"			=> "Europe (Paris)",
+					"eu-north-1"		=> "Europe (Stockholm)",
+					"me-south-1"		=> "Middle East (Bahrain)",
+					"sa-east-1"			=> "South America (São Paulo)",
 				);
 
-
 	public function getPackageName(){
-		return t("Amazon S3 Filemanager");
+		return t("Amazon S3 File Manager");
 	}
 
 	public static function getRegions(){
-		$r = new Controller();
-		return $r->regions;
+		return self::$regions;
 	}
 
 	public function getPackageDescription(){
-		return t("Use Amazons S3 to manager your files");
+		return t("Adds S3 or compatible storage location to file manager");
 	}
 
 	public function on_start(){
@@ -54,5 +62,4 @@ class Controller extends Package {
 	public function uninstall() {
 		parent::uninstall();
 	}
-
 }

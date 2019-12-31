@@ -1,16 +1,19 @@
 <?php
 defined('C5_EXECUTE') or die('Access Denied');
-?>
-<?php $form = Loader::helper('form'); 
+
+$form = Loader::helper('form'); 
 
 if (is_object($configuration)) {
-	$accesskey = $configuration->getAccesskey();
-	$secretkey = $configuration->getSecretkey();
-	$bucketname = $configuration->getBucketname();
-	$subfolder = $configuration->getSubfolder();
-	$publicPath = $configuration->getPublicPath();
-	$enablePublicPath = $configuration->getEnablePublicPath();
+	$accessKey = $configuration->getAccessKey();
+	$secretKey = $configuration->getSecretKey();
+	$bucketName = $configuration->getBucketName();
+	$endpoint = $configuration->getEndpoint();
+	$endpointPathStyle = $configuration->getEndpointPathStyle();
 	$region = $configuration->getRegion();
+	$subfolder = $configuration->getSubfolder();
+	$enablePublic = $configuration->getEnablePublic();
+	$enableRewrite = $configuration->getEnableRewrite();
+	$rewritePath = $configuration->getRewritePath();
 
 	$regions = \Concrete\Package\AmazonS3Filemanager\Controller::getRegions();
 }
@@ -18,70 +21,96 @@ if (is_object($configuration)) {
 ?>
 <fieldset>
 	<div class="form-group">
-		<label for="accesskey"><?php echo t('Accesskey')?></label>
+		<label for="accessKey"><?php echo t('Access Key')?></label>
 		<div class="input-group">
-			<?php echo $form->text('fslType[accesskey]', $accesskey, array('placeholder' => t('Accesskey')))?>
+			<?php echo $form->text('fslType[accessKey]', $accessKey, array('placeholder' => t('Access Key')))?>
 			<span class="input-group-addon"><i class="fa fa-asterisk"></i></span>
 		</div>
 	</div>
 	<div class="form-group">
-		<label for="secretkey"><?php echo t('Secretkey')?></label>
+		<label for="secretKey"><?php echo t('Secret Key')?></label>
 		<div class="input-group">
-			<?php echo $form->text('fslType[secretkey]', $secretkey, array('placeholder' => t('Secretkey')))?>
+			<?php echo $form->text('fslType[secretKey]', $secretKey, array('placeholder' => t('Secret Key')))?>
 			<span class="input-group-addon"><i class="fa fa-asterisk"></i></span>
 		</div>
 	</div>
 	<div class="form-group">
-		<label for="bucketname"><?php echo t('Bucketname')?></label>
+		<label for="bucketName"><?php echo t('Bucket Name')?></label>
 		<div class="input-group">
-			<?php echo $form->text('fslType[bucketname]', $bucketname, array('placeholder' => t('Bucketname')))?>
+			<?php echo $form->text('fslType[bucketName]', $bucketName, array('placeholder' => t('Bucket Name')))?>
 			<span class="input-group-addon"><i class="fa fa-asterisk"></i></span>
 		</div>
 	</div>
 </fieldset>
 <fieldset>
-	<legend><?php echo t('Optional Information') ?></legend>
+	<legend><?php echo t('Optional') ?></legend>
 	<div class="form-group">
-		<label for="subfolder"><?php echo t('Subfolder in your bucket - folder is created if it does not exist!')?></label>
-		<?php echo $form->text('fslType[subfolder]', $subfolder, array('placeholder' => t('Subfolder in Ihrem Bucket')))?>
+		<label for="endpoint"><?php echo t('S3 Endpoint')?></label>
+		<?php echo $form->text('fslType[endpoint]', $endpoint, array('placeholder' => t('http(s)://s3.yourdomain.com')))?>
 	</div>
-
-
-	<div class="form-group">
-		<label for="region"><?php echo t('Choose an Amazon S3 Region')?></label>
-		<?php echo $form->select('fslType[region]', $regions, $region); ?>
-	</div>
-
 
 	<div class="form-group">
 		<label>
-			<input id="enablePublicPath" type="checkbox" name="fslType[enablePublicPath]" value="true" <?php echo $enablePublicPath ? 'checked' : ''?>>
-			<?php echo t('Enable Rewrite'); ?>
+			<input id="endpointPathStyle" type="checkbox" name="fslType[endpointPathStyle]" value="true" <?php echo $endpointPathStyle ? 'checked' : ''?>>
+			<?php echo t('Use Path Style'); ?>
+		</label>
+	</div>
+
+	<div class="form-group">
+		<label for="region"><?php echo t('Amazon S3 Region')?></label>
+		<?php echo $form->select('fslType[region]', $regions, $region); ?>
+	</div>
+
+	<div class="form-group">
+		<label for="subfolder"><?php echo t('Store files in subfolder')?></label>
+		<?php echo $form->text('fslType[subfolder]', $subfolder, array('placeholder' => t('your_folder_name')))?>
+	</div>
+
+	<div class="form-group">
+		<label>
+			<input id="enablePublic" type="checkbox" name="fslType[enablePublic]" value="true" <?php echo $enablePublic ? 'checked' : ''?>>
+			<?php echo t('Use S3 Website Mode'); ?><br />
 		</label>
 	</div> 
-	
-	<div class="form-group" id="publicPath" style="display:none">
-		<label for="publicPath"><?php echo t('Path to be displayed on your website')?></label>
+	<div class="form-group" id="divEnableRewrite" style="display:none">
+		<label>
+			<input id="enableRewrite" type="checkbox" name="fslType[enableRewrite]" value="true" <?php echo $enableRewrite ? 'checked' : ''?>>
+			<?php echo t('Rewrite the S3 Website URL'); ?>
+		</label>
+	</div> 
+	<div class="form-group" id="divRewritePath" style="display:none">
+		<label for="rewritePath"><?php echo t('Path to be displayed on your website')?></label>
 		<div class="input-group">
-			<?php echo $form->text('fslType[publicPath]', $publicPath, array('placeholder' => t('Path to be displayed on your site as e.g. /files/s3/')))?>
+			<?php echo $form->text('fslType[rewritePath]', $publicPath, array('placeholder' => t('/files/s3/')))?>
 			<span class="input-group-addon"><i class="fa fa-asterisk"></i></span>
 		</div>
 	</div>
 
 </fieldset>
 
-
 <script type="text/javascript">
 
+	var _publicPath = function() {
+		if($('#enablePublic').is(':checked')) {
+			$('#divEnableRewrite').show();
 
-	var _publicPath = function(){
-		if($('#enablePublicPath').is(':checked'))
-			$('#publicPath').show();
-		else
-			$('#publicPath').hide();
+			if($('#enableRewrite').is(':checked')) {
+				$('#divRewritePath').show();
+			} else {
+				$('#divRewritePath').hide();
+			}
+		} else {
+			$('#enableRewrite').prop("checked", false);
+			$('#divEnableRewrite').hide();
+			$('#divRewritePath').hide();
+		}
 	}
 
-	$('#enablePublicPath').on('change',function(){
+	$('#enablePublic').on('change',function(){
+		_publicPath();
+	});
+
+	$('#enableRewrite').on('change',function(){
 		_publicPath();
 	});
 
