@@ -18,6 +18,7 @@ class S3Configuration extends Configuration implements ConfigurationInterface{
 	protected $region;
 	protected $subfolder;
 	protected $enablePublic;
+	protected $publicURLOverride;
 	protected $enableRewrite;
 	protected $rewritePath;
 
@@ -80,6 +81,13 @@ class S3Configuration extends Configuration implements ConfigurationInterface{
 		return $this->enablePublic;
 	}
 
+	public function setPublicURLOverride($str){
+		$this->publicURLOverride = $str;
+	}
+	public function getPublicURLOverride(){
+		return $this->publicURLOverride;
+	}
+
 	public function setEnableRewrite($str){
 		$this->enableRewrite = $str;
 	}
@@ -105,8 +113,9 @@ class S3Configuration extends Configuration implements ConfigurationInterface{
 		$this->endpoint = $data['endpoint'];
 		$this->endpointPathStyle = $data['endpointPathStyle'];
 		$this->region = $data['region'];
-		$this->subfolder = $data['subfolder'];
+		$this->subfolder = trim($data['subfolder'], "/");
 		$this->enablePublic = $data['enablePublic'];
+		$this->publicURLOverride = trim($data['publicURLOverride'], "/");
 		$this->enableRewrite = $data['enableRewrite'];
 		$this->rewritePath = trim($data['rewritePath'], "/");
 	}
@@ -166,8 +175,7 @@ class S3Configuration extends Configuration implements ConfigurationInterface{
 		if(strpos($current,$this->htaccessStartTag) !== false)
 			$current = $this->removeHtaccessEntry($current);
 
-		$current .= $content;
-		file_put_contents($file, $current);
+		file_put_contents($file, $content.$current);
 	}
 
 	private function removeHtaccessEntry($current){
@@ -195,15 +203,15 @@ class S3Configuration extends Configuration implements ConfigurationInterface{
 		<IfModule mod_rewrite.c>
 			RewriteEngine On
 			RewriteBase /
-			RewriteRule ^'.trim($this->rewritePath,'/').'/(.*)$ '.$this->createExternalUrl().'$1 [L]
+			RewriteRule ^'.$this->rewritePath.'/(.*)$ '.$this->createExternalUrl().'/$1 [L]
 		</IfModule>';
 		return $strRules;
 	}
 
 	public function getRelativePathToFile($file){
-		if($this->enablePublicPath)
-			return $this->publicPath.$file;
-		return str_replace('//', '/', $this->createExternalUrl().$file);
+		if($this->enableRewrite)
+			return '/'.$this->rewritePath.$file;
+		return $this->createExternalUrl().$file;
 	}
 
 	public function hasPublicURL(){
@@ -215,14 +223,12 @@ class S3Configuration extends Configuration implements ConfigurationInterface{
 	}
 
 	public function getPublicURLToFile($file){
-	    $rel = $this->getRelativePathToFile($file);
-        if(strpos($rel, '://')) {
-            return $rel;
-        }
+			if($this->enableRewrite) {
+				$url = \Core::getApplicationURL(true);
+				return $this->$url.'/'.$this->rewritePath.$file;
+			}
+			return $this->createExternalUrl().$file;
 
-        $url = \Core::getApplicationURL(true);
-        $url = $url->setPath($rel);
-        return trim((string) $url, '/');
 	}
 
 	public function getAdapter(){
@@ -237,11 +243,14 @@ class S3Configuration extends Configuration implements ConfigurationInterface{
 				]
 		]);
 
-		$AwsS3 = new AwsS3Adapter($client, $this->bucketName, ($this->subfolder ? $this->subfolder : ''));
-		return $AwsS3;
+		$awsS3 = new AwsS3Adapter($client, $this->bucketName, ($this->subfolder ? $this->subfolder : ''));
+		return $awsS3;
 	}
 
 	private function createExternalUrl(){
-		return 'http://'.$this->bucketName.'.s3-website'.($this->region ? '-'.$this->region : '').'.amazonaws.com'.($this->subfolder ? $this->subfolder : '').'/';
+		if (!empty($this->publicURLOverride)) {
+			return $this->publicURLOverride.($this->subfolder ? '/'.$this->subfolder : '');
+		}
+		return 'http://'.$this->bucketName.'.s3-website'.($this->region ? '-'.$this->region : '').'.amazonaws.com'.($this->subfolder ? '/'.$this->subfolder : '');
 	}
 }
