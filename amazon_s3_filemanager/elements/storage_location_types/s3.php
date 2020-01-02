@@ -12,6 +12,7 @@ if (is_object($configuration)) {
 	$region = $configuration->getRegion();
 	$subfolder = $configuration->getSubfolder();
 	$enablePublic = $configuration->getEnablePublic();
+	$publicURLOverride = $configuration->getPublicURLOverride();
 	$enableRewrite = $configuration->getEnableRewrite();
 	$rewritePath = $configuration->getRewritePath();
 
@@ -72,6 +73,11 @@ if (is_object($configuration)) {
 			<?php echo t('Use S3 Website Mode'); ?><br />
 		</label>
 	</div> 
+	<div class="form-group" id="divPublicURLOverride" style="display:none">
+		<label for="publicURLOverride"><?php echo t('Override S3 website URL')?></label>
+		<?php echo $form->text('fslType[publicURLOverride]', $publicURLOverride, array('placeholder' => t('http://<bucket>.s3-website.<region>.amazonaws.com')))?>
+	</div>
+
 	<div class="form-group" id="divEnableRewrite" style="display:none">
 		<label>
 			<input id="enableRewrite" type="checkbox" name="fslType[enableRewrite]" value="true" <?php echo $enableRewrite ? 'checked' : ''?>>
@@ -81,7 +87,7 @@ if (is_object($configuration)) {
 	<div class="form-group" id="divRewritePath" style="display:none">
 		<label for="rewritePath"><?php echo t('Path to be displayed on your website')?></label>
 		<div class="input-group">
-			<?php echo $form->text('fslType[rewritePath]', $publicPath, array('placeholder' => t('/files/s3/')))?>
+			<?php echo $form->text('fslType[rewritePath]', $rewritePath, array('placeholder' => t('files/s3/')))?>
 			<span class="input-group-addon"><i class="fa fa-asterisk"></i></span>
 		</div>
 	</div>
@@ -93,6 +99,7 @@ if (is_object($configuration)) {
 	var _publicPath = function() {
 		if($('#enablePublic').is(':checked')) {
 			$('#divEnableRewrite').show();
+			$('#divPublicURLOverride').show();
 
 			if($('#enableRewrite').is(':checked')) {
 				$('#divRewritePath').show();
@@ -103,6 +110,7 @@ if (is_object($configuration)) {
 			$('#enableRewrite').prop("checked", false);
 			$('#divEnableRewrite').hide();
 			$('#divRewritePath').hide();
+			$('#divPublicURLOverride').hide();
 		}
 	}
 
