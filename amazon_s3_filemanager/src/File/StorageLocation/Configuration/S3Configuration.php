@@ -5,7 +5,7 @@ use Concrete\Core\Error\Error as coreError,
 	Concrete\Core\File\StorageLocation\Configuration\Configuration,
 	Concrete\Core\File\StorageLocation\Configuration\ConfigurationInterface,
 	Concrete\Core\Http\Request,
-	League\Flysystem\AwsS3v3\AwsS3Adapter,
+	Concrete\Flysystem\Adapter\AwsS3,
 	Aws\S3\S3Client;
 
 class S3Configuration extends Configuration implements ConfigurationInterface{
@@ -149,16 +149,13 @@ class S3Configuration extends Configuration implements ConfigurationInterface{
 
 	private function testS3Connection(){
 		try {
-			$s3Client = new S3Client([
-				'version' => 'latest',
+			$s3Client = S3Client::factory(array(
+				'key' => $this->accessKey,
+				'secret' => $this->secretKey,
 				'region' => $this->region,
 				'endpoint' => $this->endpoint,
 				'use_path_style_endpoint' => $this->endpointPathStyle !== '',
-				'credentials' => [
-					'key' => $this->accessKey,
-					'secret' => $this->secretKey
-				]
-			]);
+			));
 
 			$bucketExist = $s3Client->doesBucketExist($this->bucketName);
 
@@ -232,18 +229,15 @@ class S3Configuration extends Configuration implements ConfigurationInterface{
 	}
 
 	public function getAdapter(){
-		$client = new S3Client([
-				'version' => 'latest',
+			$client = S3Client::factory(array(
+				'key' => $this->accessKey,
+				'secret' => $this->secretKey,
 				'region' => $this->region,
 				'endpoint' => $this->endpoint,
 				'use_path_style_endpoint' => $this->endpointPathStyle !== '',
-				'credentials' => [
-					'key' => $this->accessKey,
-					'secret' => $this->secretKey
-				]
-		]);
+			));
 
-		$awsS3 = new AwsS3Adapter($client, $this->bucketName, ($this->subfolder ? $this->subfolder : ''));
+		$awsS3 = new AwsS3($client, $this->bucketName, ($this->subfolder ? $this->subfolder : ''));
 		return $awsS3;
 	}
 
