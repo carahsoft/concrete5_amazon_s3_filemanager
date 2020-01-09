@@ -74,7 +74,7 @@ if (is_object($configuration)) {
 		</label>
 	</div> 
 	<div class="form-group" id="divPublicURLOverride" style="display:none">
-		<label for="publicURLOverride"><?php echo t('Override S3 website URL')?></label>
+		<label for="publicURLOverride"><?php echo t('Override Amazon S3 website URL')?></label>
 		<?php echo $form->text('fslType[publicURLOverride]', $publicURLOverride, array('placeholder' => t('http://<bucket>.s3-website.<region>.amazonaws.com')))?>
 	</div>
 
@@ -91,6 +91,12 @@ if (is_object($configuration)) {
 			<span class="input-group-addon"><i class="fa fa-asterisk"></i></span>
 		</div>
 	</div>
+	<div class="form-group" id="divUseRewriteAsPrimaryURL" style="display:none">
+		<label>
+			<input id="enableRewrite" type="checkbox" name="fslType[useRewriteAsPrimaryURL]" value="true" <?php echo $useRewriteAsPrimaryURL ? 'checked' : ''?>>
+			<?php echo t('Use rewrite path as primary URL to files'); ?>
+		</label>
+	</div>
 
 </fieldset>
 
@@ -103,14 +109,17 @@ if (is_object($configuration)) {
 
 			if($('#enableRewrite').is(':checked')) {
 				$('#divRewritePath').show();
+				$('#divUseRewriteAsPrimaryURL').show();
 			} else {
 				$('#divRewritePath').hide();
+				$('#divUseRewriteAsPrimaryURL').hide();
 			}
 		} else {
 			$('#enableRewrite').prop("checked", false);
 			$('#divEnableRewrite').hide();
 			$('#divRewritePath').hide();
 			$('#divPublicURLOverride').hide();
+			$('#divUseRewriteAsPrimaryURL').hide();
 		}
 	}
 

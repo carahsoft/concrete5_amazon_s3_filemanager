@@ -21,6 +21,7 @@ class S3Configuration extends Configuration implements ConfigurationInterface{
 	protected $publicURLOverride;
 	protected $enableRewrite;
 	protected $rewritePath;
+	protected $useRewriteAsPrimaryURL;
 
 	protected $htaccessStartTag = '# -- s3 amazon filemanager rewrite start --';
 	protected $htaccessEndTag = '# -- s3 amazon filemanager rewrite end --';
@@ -102,6 +103,12 @@ class S3Configuration extends Configuration implements ConfigurationInterface{
 		return $this->rewritePath;
 	}
 	
+	public function setUseRewriteAsPrimaryURL($str){
+		$this->useRewriteAsPrimaryURL = $str;
+	}
+	public function getUseRewriteAsPrimaryURL(){
+		return $this->useRewriteAsPrimaryURL;
+	}
 
 
 	public function loadFromRequest(\Concrete\Core\Http\Request $req){
@@ -118,6 +125,7 @@ class S3Configuration extends Configuration implements ConfigurationInterface{
 		$this->publicURLOverride = trim($data['publicURLOverride'], "/");
 		$this->enableRewrite = $data['enableRewrite'];
 		$this->rewritePath = trim($data['rewritePath'], "/");
+		$this->useRewriteAsPrimaryURL = $data['useRewriteAsPrimaryURL'];
 	}
 	
 	public function validateRequest(\Concrete\Core\Http\Request $req){
@@ -203,13 +211,13 @@ class S3Configuration extends Configuration implements ConfigurationInterface{
 		<IfModule mod_rewrite.c>
 			RewriteEngine On
 			RewriteBase /
-			RewriteRule ^'.$this->rewritePath.'/(.*)$ '.$this->createExternalUrl().'/$1 [L]
+			RewriteRule ^'.$this->rewritePath.'/((\d{4}|thumbnails).*)$ '.$this->createExternalUrl().'/$1 [L]
 		</IfModule>';
 		return $strRules;
 	}
 
 	public function getRelativePathToFile($file){
-		if($this->enableRewrite)
+		if($this->enableRewrite && $this->useRewriteAsPrimaryURL)
 			return '/'.$this->rewritePath.$file;
 		return $this->createExternalUrl().$file;
 	}
@@ -223,7 +231,7 @@ class S3Configuration extends Configuration implements ConfigurationInterface{
 	}
 
 	public function getPublicURLToFile($file){
-			if($this->enableRewrite) {
+			if($this->enableRewrite && $this->useRewriteAsPrimaryURL) {
 				$url = \Core::getApplicationURL(true);
 				return $this->$url.'/'.$this->rewritePath.$file;
 			}
